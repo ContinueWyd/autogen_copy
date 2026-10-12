@@ -48,7 +48,7 @@ async def main():
         name="assistant",
         model_client=model_client,
         tools=[weather_tool],
-        system_message="你是一个有用的助手，可以查询天气。",
+        system_message="你是一个有用的助手。查询天气后，请用一句话总结给用户，比如'北京今天晴天，25度'。"
     )
 
     # 5. 跑一个会触发工具调用的任务
