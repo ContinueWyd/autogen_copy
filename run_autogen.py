@@ -34,6 +34,7 @@ async def main():
             json_output=True,
             structured_output=False,
             family="unknown",
+            reflect_on_tool_use=True,  # 关键参数：工具调用后让模型反思一次
         ),
     )
 
@@ -52,7 +53,9 @@ async def main():
     )
 
     # 5. 跑一个会触发工具调用的任务
-    result = await agent.run(task="北京今天天气怎么样？")
+    result = await agent.run(
+        task="北京今天天气怎么样？请先用一句话告诉我你要查天气，然后再给出结果。"
+    )
 
     # 6. 打印全部消息，观察工具调用过程
     for i, msg in enumerate(result.messages):
