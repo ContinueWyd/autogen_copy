@@ -28,7 +28,11 @@ async def main():
         system_message="你是一个有用的助手。",
     )
     result = await agent.run(task="用一句话解释什么是 Agent。")
-    print(result.messages[-1].content)
+    for i, msg in enumerate(result.messages):
+        print(f"--- 第 {i} 条 ---")
+        print(f"类型: {type(msg).__name__}")
+        print(f"来源: {msg.source}")
+        print(f"内容: {msg.content}")
 
 if __name__ == "__main__":
     asyncio.run(main())
