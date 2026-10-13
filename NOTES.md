@@ -249,6 +249,19 @@ result = await team.run(task="...")
     - 简单任务（解释一个词）用它是"杀鸡用牛刀"
     - 它的价值在"任务需要多次迭代才能完成"时才会体现
     - 学习阶段知道它"是什么、解决什么问题"就够了，不必深入
+
+21. **CodeExecutorAgent 不需要 model_client**：
+    - 它不调用大模型，只执行代码
+    - 所以消息流最短：user 输入 → code_executor 输出
+
+22. **LocalCommandLineCodeExecutor 有安全风险**：
+    - 它真的会在本机执行代码
+    - 只跑自己信任的代码
+    - 生产环境应该用 DockerCommandLineCodeExecutor
+
+23. **CodeExecutorAgent 默认无审批执行**：
+    - 可以用 approval_func 加人工确认
+    - 学习阶段可忽略，生产必须处理
 ---
 
 ## 八、下一步计划
