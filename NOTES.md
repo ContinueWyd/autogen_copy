@@ -285,6 +285,14 @@ result = await team.run(task="...")
 29. **RoundRobin + UserProxyAgent 会反复问你**：
     - 因为轮流发言，每次轮到 user_proxy 就问你一次
     - 用 MaxMessageTermination 限制轮数，防止问太多次
+30. **MaxMessageTermination 不认 TERMINATE**：
+    - 它只数消息条数，不管内容
+    - 想"看到 TERMINATE 就停"，必须用 TextMentionTermination("TERMINATE")
+    - 组合写法：TextMentionTermination("TERMINATE") | MaxMessageTermination(10)
+
+31. **UserProxyAgent + input_func 生效后，每次轮到它就自动回复**：
+    - 这次它自动回了两次"请按任务要求回答。"
+    - 如果终止条件没设对，它会一直自动回，直到消息数上限
 ---
 
 ## 八、下一步计划

@@ -5,7 +5,7 @@ from autogen_agentchat.teams import RoundRobinGroupChat
 from autogen_agentchat.conditions import MaxMessageTermination
 from autogen_ext.models.openai import OpenAIChatCompletionClient
 from autogen_core.models import ModelInfo
-
+from autogen_agentchat.conditions import TextMentionTermination, MaxMessageTermination
 
 async def main():
     model_client = OpenAIChatCompletionClient(
@@ -29,14 +29,18 @@ async def main():
     )
 
     # 2. UserProxyAgent：代表用户发言
+    def auto_reply(prompt: str) -> str:
+        return "请按任务要求回答。"
+
     user_proxy = UserProxyAgent(
         name="user_proxy",
+        input_func=auto_reply,
     )
 
     # 3. 组成 Team：user_proxy 先发言，assistant 回应
     team = RoundRobinGroupChat(
         participants=[user_proxy, assistant],
-        termination_condition=MaxMessageTermination(4),
+        termination_condition = TextMentionTermination("TERMINATE") | MaxMessageTermination(10)
     )
 
     result = await team.run(task="用一句话解释什么是 Agent。")
