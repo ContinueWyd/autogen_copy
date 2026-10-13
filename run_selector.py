@@ -2,7 +2,7 @@ import asyncio
 import os
 from autogen_agentchat.agents import AssistantAgent
 from autogen_agentchat.teams import SelectorGroupChat
-from autogen_agentchat.conditions import TextMentionTermination
+from autogen_agentchat.conditions import TextMentionTermination, MaxMessageTermination
 from autogen_ext.models.openai import OpenAIChatCompletionClient
 from autogen_core.models import ModelInfo
 
@@ -40,10 +40,11 @@ async def main():
     )
 
     # 关键区别：用 model_client 来决定下一个谁发言
+    termination = TextMentionTermination("TERMINATE") | MaxMessageTermination(10)
     team = SelectorGroupChat(
         participants=[writer, reviewer],
         model_client=model_client,
-        termination_condition=TextMentionTermination("TERMINATE"),
+        termination_condition=termination
     )
 
     result = await team.run(task="写一个 Python 函数，计算斐波那契数列的第 n 项。")
