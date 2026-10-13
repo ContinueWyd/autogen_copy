@@ -293,6 +293,22 @@ result = await team.run(task="...")
 31. **UserProxyAgent + input_func 生效后，每次轮到它就自动回复**：
     - 这次它自动回了两次"请按任务要求回答。"
     - 如果终止条件没设对，它会一直自动回，直到消息数上限
+
+33. **A1 第1步跑通：writer + executor 双 Agent 协作**：
+    - writer 写代码（用 ```python 包裹）
+    - executor 执行代码，返回执行结果
+    - 执行结果作为消息回到 writer
+    - writer 可以基于结果决定下一步
+
+34. **MaxMessageTermination(n) 的 n ≠ 实际消息条数**：
+    - 它数的是"Agent 生成的消息数"
+    - 不包括 user 输入、ThoughtEvent 等
+    - 所以设 4 可能实际跑 6 条
+
+35. **RoundRobin 会产生"无意义确认"**：
+    - 轮到 writer 时它必须发言，即使只是说"输出正确"
+    - 这是"轮流"机制的副作用
+    - 要让协作有意义，需要加条件判断（比如"出错才改"）
 ---
 
 ## 八、下一步计划
