@@ -307,3 +307,10 @@ python run_selector.py
 # 验证环境变量
 echo $env:DEEPSEEK_API_KEY
 ```
+
+## 附录：GitHub Desktop 提交要点
+
+- **Summary (required)**：必填，一句话提交标题
+- **Description**：可选，详细说明
+- 只填 Description 不填 Summary，提交按钮是灰的，点不了
+- 建议：Summary 用英文，避免编码问题
