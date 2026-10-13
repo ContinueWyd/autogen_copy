@@ -211,7 +211,10 @@ result = await team.run(task="...")
    - 原因：选择器由模型决定，模型输出有随机性
 8. **Selector 可能"选不出人"提前停**：当选择器判断"没人该说话了"，任务会结束，不会等到 `TERMINATE`。
 9. **第三方平台可能临时连不上**：报 `APIConnectionError` / `httpx2.ConnectError` 时，不是代码问题，重试或等一会儿。
-
+10. **Swarm 的移交本质是工具调用**：`handoffs=["coder"]` 会自动生成一个 `transfer_to_coder` 工具，Agent 调用它即完成移交。
+11. **`HandoffMessage` 是 Swarm 独有的消息类型**：标志任务从一个 Agent 移交给另一个。
+12. **Swarm 不需要选择器模型**：和 Selector 不同，Swarm 靠 Agent 自己"说"要交给谁。
+13. **Swarm 的参与者顺序有讲究**：`participants` 列表里第一个 Agent 总是先发言，通常放"分流员"。
 ---
 
 ## 八、下一步计划
