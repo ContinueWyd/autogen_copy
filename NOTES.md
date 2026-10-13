@@ -215,6 +215,26 @@ result = await team.run(task="...")
 11. **`HandoffMessage` 是 Swarm 独有的消息类型**：标志任务从一个 Agent 移交给另一个。
 12. **Swarm 不需要选择器模型**：和 Selector 不同，Swarm 靠 Agent 自己"说"要交给谁。
 13. **Swarm 的参与者顺序有讲究**：`participants` 列表里第一个 Agent 总是先发言，通常放"分流员"。
+14. **Selector 需要额外模型，RoundRobin 和 Swarm 不需要**：
+    - RoundRobin：下一个谁发言，框架写死，不需要问模型
+    - Selector：需要额外调一次模型，让它选下一个发言者（这就是它的 `model_client` 参数的用途）
+    - Swarm：当前 Agent 发言时顺便说"交给谁"，不需要额外问
+
+15. **Agent 数量由你决定，不由编排方式决定**：
+    - 三种编排都可以用任意数量的 Agent
+    - 我之前用 Swarm 放 3 个 Agent，是因为要演示"分流 + 两个专家"的场景
+    - RoundRobin 和 Selector 放 2 个，是因为"写 + 审"两个角色就够
+    - 原则：每个 Agent 都要有明确、不重复的角色
+16. **Selector 的额外模型开销是机制性的**：
+    - `SelectorGroupChat` 必须传 `model_client`
+    - 每轮发言前会额外调一次模型，让它决定"下一个谁发言"
+    - 同样 4 轮对话，Selector 的模型调用次数约是 RoundRobin 的 2 倍
+    - 这是 Selector 独有的成本
+
+17. **Swarm 不需要额外模型，也不强制要求分流 Agent**：
+    - 移交是当前 Agent"顺便"做的，不额外调用模型
+    - 你可以放一个 triage 分流员，但那是设计选择，不是框架要求
+    - Swarm 的 participants 放任意数量和角色都可以
 ---
 
 ## 八、下一步计划
