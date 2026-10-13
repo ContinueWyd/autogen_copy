@@ -2,7 +2,7 @@ import asyncio
 import os
 from autogen_agentchat.agents import AssistantAgent
 from autogen_agentchat.teams import RoundRobinGroupChat
-from autogen_agentchat.conditions import MaxMessageTermination
+from autogen_agentchat.conditions import MaxMessageTermination, TextMentionTermination
 from autogen_ext.models.openai import OpenAIChatCompletionClient
 from autogen_core.models import ModelInfo
 
@@ -45,9 +45,11 @@ async def main():
     )
 
     # 3. 组成一个团队，让它们轮流发言
+    # 终止条件：看到 TERMINATE 就停，或最多 10 条消息
+    termination = TextMentionTermination("TERMINATE") | MaxMessageTermination(10)
     team = RoundRobinGroupChat(
         participants=[writer, reviewer],
-        termination_condition=MaxMessageTermination(6),  # 最多 6 条消息，防止无限循环
+        termination_condition= termination ,  # 最多 6 条消息，防止无限循环
     )
 
     # 4. 跑任务
