@@ -262,6 +262,29 @@ result = await team.run(task="...")
 23. **CodeExecutorAgent 默认无审批执行**：
     - 可以用 approval_func 加人工确认
     - 学习阶段可忽略，生产必须处理
+
+24. **UserProxyAgent 默认会"问真人"**：
+    - 它代表"真实用户"角色
+    - 运行时会在终端弹出 "Enter your response:" 等你输入
+    - 这是设计本意，不是 bug
+    - 不想手动输入，可以配 input_func 自动回复
+
+25. **UserProxyAgent 的典型用途**：
+    - 需要人工审核、确认的场景
+    - 需要真人参与对话的场景
+    - 不是"自动干活"的 Agent
+
+27. **`UserInputRequestedEvent` 是 UserProxyAgent 独有的消息类型**：
+    - 出现它，就意味着"程序在等用户输入"
+    - 每个"轮到 user_proxy 发言"的轮次，都会触发一次
+
+28. **UserProxyAgent 默认就会问真人**：
+    - 即使设了 input_func，如果参数没生效，它还是会问你
+    - 想让它自动回，必须确认 input_func 真的传进去了
+
+29. **RoundRobin + UserProxyAgent 会反复问你**：
+    - 因为轮流发言，每次轮到 user_proxy 就问你一次
+    - 用 MaxMessageTermination 限制轮数，防止问太多次
 ---
 
 ## 八、下一步计划
