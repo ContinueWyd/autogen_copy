@@ -57,11 +57,24 @@ async def main():
         system_message=(
             "你是一个 Python 程序员。"
             "写代码后，必须调用 execute_python_code 工具来执行它。"
-            "如果执行结果不正确，修正代码后再次调用工具。"
-            "确认结果正确后，把任务交给 verifier 验证。"
+            "确认基本正确后，把任务交给 tester 测试。"
         ),
         tools=[execute_tool],
-        handoffs=["verifier"],
+        handoffs=["tester"],
+    )
+
+    tester = AssistantAgent(
+        name="tester",
+        model_client=model_client,
+        system_message=(
+            "你是一个测试工程师。"
+            "针对 writer 写的代码，设计 3-5 个测试用例（包括边界情况）。"
+            "用 execute_python_code 工具执行测试。"
+            "如果测试通过，交给 verifier。"
+            "如果测试失败，交回 writer 修正。"
+        ),
+        tools=[execute_tool],  # tester 也能调执行工具
+        handoffs=["writer", "verifier"],  # 可以交回 writer，也可以交给 verifier
     )
 
     # 5. verifier：验证最终结果
@@ -78,7 +91,7 @@ async def main():
 
     # 6. Swarm
     team = Swarm(
-        participants=[writer, verifier],
+        participants=[writer, tester,verifier],
         termination_condition=TextMentionTermination("TERMINATE") | MaxMessageTermination(20),
     )
 
