@@ -387,6 +387,21 @@ result = await team.run(task="...")
     - verifier 不通过 → 交回 writer
     - verifier 通过 → 说 TERMINATE
     - 天然支持"循环直到成功"
+
+55. **CodeExecutorAgent 不支持 handoffs**：
+    - Swarm 的 handoffs 参数只对 AssistantAgent 有效
+    - CodeExecutorAgent 没有这个参数
+    - 所以 Swarm 里，writer → executor → verifier 这条链会断在 executor
+
+56. **Swarm 的移交本质是"工具调用"**：
+    - handoffs=["executor"] 会自动生成 transfer_to_executor 工具
+    - 只有能"调用工具"的 Agent 才支持 handoffs
+    - CodeExecutorAgent 不调用模型，也不会调工具，所以不支持
+
+57. **A1 当前卡点**：
+    - RoundRobin 能跑，但不能"条件循环"
+    - Swarm 结构上支持"条件循环"，但 CodeExecutorAgent 不支持 handoffs
+    - 需要换思路：把执行器包装成工具，而不是让 executor 当团队成员
 ---
 
 ## 八、下一步计划

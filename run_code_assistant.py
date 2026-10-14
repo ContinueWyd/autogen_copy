@@ -1,7 +1,7 @@
 import asyncio
 import os
 from autogen_agentchat.agents import AssistantAgent, CodeExecutorAgent
-from autogen_agentchat.teams import RoundRobinGroupChat
+from autogen_agentchat.teams import RoundRobinGroupChat, Swarm
 from autogen_agentchat.conditions import MaxMessageTermination, TextMentionTermination
 from autogen_ext.code_executors.local import LocalCommandLineCodeExecutor
 from autogen_ext.models.openai import OpenAIChatCompletionClient
@@ -29,37 +29,44 @@ async def main():
         timeout=10,
     )
 
-    # 3. writer：写代码
+    # 3. writer：写代码 / 修正代码，写完交给 executor
     writer = AssistantAgent(
         name="writer",
         model_client=model_client,
         system_message=(
-            "你是一个 Python 程序员。根据用户需求写出代码，用 ```python 代码块包裹。"
-            "写完后不要自己判断是否完成，交给 verifier 判断。"
+            "你是一个 Python 程序员。"
+            "根据用户需求或 verifier 的意见写代码/修正代码，用 ```python 代码块包裹。"
+            "写完后，把任务交给 executor 执行。"
         ),
+        handoffs=["executor"],
     )
-    # 4. verifier：新增的验证 Agent，负责判断执行结果是否正确
+
+    # 4. executor：执行代码，执行完交给 verifier
+    executor_agent = CodeExecutorAgent(
+        name="executor",
+        code_executor=executor,
+        handoffs=["verifier"],
+    )
+
+    # 5. verifier：验证执行结果，通过说 TERMINATE，不通过交回 writer
     verifier = AssistantAgent(
         name="verifier",
         model_client=model_client,
         system_message=(
-            "你是一个验证员。你的任务是检查 executor 的执行结果是否正确。"
-            "如果输出正确，回复 '验证通过' 并加上 TERMINATE。"
-            "如果输出不对，指出具体问题，让 writer 修正。"
+            "你是一个验证员。检查 executor 的执行结果是否正确。"
+            "如果正确，回复 '验证通过' 并加上 TERMINATE。"
+            "如果不正确，指出具体问题，并把任务交回给 writer。"
             "不要自己写代码。"
         ),
+        handoffs=["writer"],
     )
 
-    # 5. executor：执行代码
-    executor_agent = CodeExecutorAgent(
-        name="executor",
-        code_executor=executor,
-    )
-
-    # 6. 组成 Team：writer 先写，executor 执行
-    team = RoundRobinGroupChat(
+    # 6. Swarm：Agent 自己决定移交给谁
+    team = Swarm(
         participants=[writer, executor_agent, verifier],
-        termination_condition=TextMentionTermination("TERMINATE") | MaxMessageTermination(12),
+        termination_condition=(
+                TextMentionTermination("TERMINATE") | MaxMessageTermination(15)
+        ),
     )
 
     # 7. 跑任务
