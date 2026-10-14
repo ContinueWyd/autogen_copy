@@ -2,7 +2,7 @@ import asyncio
 import os
 from autogen_agentchat.agents import AssistantAgent, CodeExecutorAgent
 from autogen_agentchat.teams import RoundRobinGroupChat
-from autogen_agentchat.conditions import MaxMessageTermination
+from autogen_agentchat.conditions import MaxMessageTermination, TextMentionTermination
 from autogen_ext.code_executors.local import LocalCommandLineCodeExecutor
 from autogen_ext.models.openai import OpenAIChatCompletionClient
 from autogen_core.models import ModelInfo
@@ -37,6 +37,7 @@ async def main():
             "你是一个 Python 程序员。"
             "根据用户需求写出代码，用 ```python 代码块包裹。"
             "写完后不要解释太多，让 executor 去执行。"
+            "如果你确认代码输出正确，请在回复里加上 TERMINATE。"
         ),
     )
 
@@ -49,7 +50,7 @@ async def main():
     # 5. 组成 Team：writer 先写，executor 执行
     team = RoundRobinGroupChat(
         participants=[writer, executor_agent],
-        termination_condition=MaxMessageTermination(4),
+        termination_condition=TextMentionTermination("TERMINATE")|MaxMessageTermination(10)
     )
 
     # 6. 跑任务

@@ -338,6 +338,21 @@ result = await team.run(task="...")
     - executor 返回的 IndentationError 信息
     - 成为 writer 下一轮思考的输入
     - 这就是"错误反馈循环"的机制
+
+42. **TextMentionTermination 会让"自认为完成"的 Agent 提前终止任务**：
+    - writer 写完代码就说了 TERMINATE
+    - executor 没机会执行验证
+    - 这是"终止条件设计不当"的典型问题
+
+43. **"谁来判定任务完成"是多 Agent 的核心难点**：
+    - 让 writer 判定 → 它会"自认为完成"
+    - 让 executor 判定 → 它不会说 TERMINATE
+    - 让另一个 Agent 判定 → 需要更复杂的编排
+
+44. **A1 第2步的教训**：
+    - 不能简单地把"TERMINATE"交给 writer
+    - 需要"验证后再终止"的机制
+    - 这属于 A1 第3步的内容
 ---
 
 ## 八、下一步计划
