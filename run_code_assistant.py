@@ -53,7 +53,15 @@ async def main():
     )
 
     # 6. 跑任务
-    task = "写一个 Python 函数，计算 1 到 n 的平方和。请用 n=-1 作为测试用例调用它。"
+    task = """请执行以下代码，如果输出不对就修复它：
+
+    ```python
+    def sum_of_squares(n):
+        return sum(i*i for i in range(1, n))
+
+    print(sum_of_squares(3))
+    ```
+    """
     result = await team.run(task=task)
 
     # 7. 打印消息流

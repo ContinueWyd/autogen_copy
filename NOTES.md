@@ -323,6 +323,21 @@ result = await team.run(task="...")
     - 正常的"写代码"任务，writer 不会出错
     - 要么给错误需求，要么直接给有 bug 的代码
     - 后者更直接
+
+39. **"出错就改"真的会发生**：
+    - writer 发现逻辑 bug（range(1,n) → range(1,n+1)）并修正
+    - 执行报错后，writer 诊断出缩进问题，又修正一次
+    - 这个循环是 AutoGen 默认行为的一部分
+
+40. **任务文本的格式会影响执行结果**：
+    - task 里的代码块如果带缩进，writer 会原样复制
+    - 导致 IndentationError
+    - 写 task 时要注意代码块不要有前导空格
+
+41. **executor 的报错信息会被 writer 看到**：
+    - executor 返回的 IndentationError 信息
+    - 成为 writer 下一轮思考的输入
+    - 这就是"错误反馈循环"的机制
 ---
 
 ## 八、下一步计划
