@@ -96,16 +96,19 @@ async def main():
     )
 
     # 7. 跑任务
-    task = """写一个 Python 函数 longest_palindrome(s)，找出字符串 s 中最长的回文子串。
+    task = """写一个 Python 函数 is_match(s, p)，实现正则表达式匹配，支持 '.' 和 '*'。
 
-    要求：
-    1. 回文是指正着读和反着读都一样的字符串。
-    2. 如果有多个长度相同的回文子串，返回任意一个即可。
-    3. 字符串长度不超过 1000。
+    规则：
+    1. '.' 匹配任意单个字符。
+    2. '*' 匹配零个或多个前面的那一个元素。
+    3. 匹配必须覆盖整个字符串 s，而不是部分匹配。
 
     测试用例：
-    - s = "babad" → 返回 "bab" 或 "aba"
-    - s = "cbbd" → 返回 "bb"
+    - is_match("aa", "a") → False
+    - is_match("aa", "a*") → True
+    - is_match("ab", ".*") → True
+    - is_match("aab", "c*a*b") → True
+    - is_match("mississippi", "mis*is*p*.") → False
     """
     result = await team.run(task=task)
 
