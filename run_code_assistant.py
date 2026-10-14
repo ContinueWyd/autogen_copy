@@ -96,15 +96,16 @@ async def main():
     )
 
     # 7. 跑任务
-    task = """写一个 Python 函数 two_sum(nums, target)，找出列表 nums 中两个数，使它们的和等于 target，返回这两个数的下标。
+    task = """写一个 Python 函数 longest_palindrome(s)，找出字符串 s 中最长的回文子串。
 
     要求：
-    1. 假设每个输入只有一个答案。
-    2. 同一个元素不能重复使用。
+    1. 回文是指正着读和反着读都一样的字符串。
+    2. 如果有多个长度相同的回文子串，返回任意一个即可。
+    3. 字符串长度不超过 1000。
 
     测试用例：
-    - nums = [2, 7, 11, 15], target = 9 → 返回 [0, 1]
-    - nums = [3, 2, 4], target = 6 → 返回 [1, 2]
+    - s = "babad" → 返回 "bab" 或 "aba"
+    - s = "cbbd" → 返回 "bb"
     """
     result = await team.run(task=task)
 
