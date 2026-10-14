@@ -402,6 +402,52 @@ result = await team.run(task="...")
     - RoundRobin 能跑，但不能"条件循环"
     - Swarm 结构上支持"条件循环"，但 CodeExecutorAgent 不支持 handoffs
     - 需要换思路：把执行器包装成工具，而不是让 executor 当团队成员
+
+58. **Swarm 的"自救"能力**：
+    - writer 在工具连续失败 4 次后，没有死循环
+    - 主动判断"工具坏了"，改用推理
+    - 主动移交 verifier
+    - 这是"成熟 Agent"的行为
+
+59. **verifier 的"实质验证"**：
+    - 它没有死板要求"必须有执行结果"
+    - 检查了代码逻辑、期望输出、失败原因
+    - 判断"环境问题不是 writer 的错"
+    - 通过
+
+60. **execute_code_blocks 需要 cancellation_token**：
+    - 报错：missing 1 required positional argument: 'cancellation_token'
+    - 修法：传入 CancellationToken()
+
+61. **execute_code_blocks 的正确参数格式**：
+    - 报错：'tuple' object has no attribute 'language'
+    - 原因：传了元组 [(...)]，应该是 CodeBlock 对象 [CodeBlock(...)]
+    - 正确写法：code_blocks=[CodeBlock(code=code, language="python")]
+
+62. **writer 的"自救"行为是稳定的**：
+    - 上次报 cancellation_token 错误，它绕过
+    - 这次报 tuple 错误，它还是绕过
+    - 说明这是"多 Agent 系统的鲁棒性"，不是偶然
+
+63. **verifier 的"实质验证"也是稳定的**：
+    - 它不要求"必须有执行结果"
+    - 看到工具坏了，看代码逻辑和手工推导
+    - 两次都通过
+
+64. **A1 方案 A 完全跑通**：
+    - 把执行器包装成 FunctionTool 交给 writer
+    - Swarm 里只放 writer + verifier
+    - writer 自己调用工具执行代码，失败就改，成功就移交
+    - verifier 核对后通过，TERMINATE
+
+65. **execute_code_blocks 的正确参数格式**（修正版）：
+    - code_blocks=[CodeBlock(code=code, language="python")]
+    - cancellation_token=CancellationToken()
+    - 不能传元组
+
+66. **A1 完整闭环达成**：
+    - 写代码 → 执行 → 看结果 → 修正 → 再执行 → 移交验证 → 通过
+    - 这是"多 Agent 代码助手"的最小可用版本
 ---
 
 ## 八、下一步计划

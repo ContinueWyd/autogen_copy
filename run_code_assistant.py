@@ -3,6 +3,9 @@ import os
 from autogen_agentchat.agents import AssistantAgent, CodeExecutorAgent
 from autogen_agentchat.teams import RoundRobinGroupChat, Swarm
 from autogen_agentchat.conditions import MaxMessageTermination, TextMentionTermination
+from autogen_core import code_executor, CancellationToken
+from autogen_core.code_executor import CodeBlock
+from autogen_core.tools import FunctionTool
 from autogen_ext.code_executors.local import LocalCommandLineCodeExecutor
 from autogen_ext.models.openai import OpenAIChatCompletionClient
 from autogen_core.models import ModelInfo
@@ -29,44 +32,54 @@ async def main():
         timeout=10,
     )
 
-    # 3. writer：写代码 / 修正代码，写完交给 executor
+    # 3. 把"执行代码"包装成工具函数
+    async def execute_python_code(code: str) -> str:
+        """执行传入的 Python 代码，返回运行结果。
+
+        Args:
+            code: 要执行的 Python 代码字符串。
+        """
+        result = await executor.execute_code_blocks(
+            code_blocks=[CodeBlock(code=code, language="python")],
+            cancellation_token=CancellationToken(),
+        )
+        return result.output
+
+    execute_tool = FunctionTool(
+        execute_python_code,
+        description="执行 Python 代码并返回结果。写完代码后调用它来验证。",
+    )
+
+    # 4. writer：写代码 + 持有执行工具
     writer = AssistantAgent(
         name="writer",
         model_client=model_client,
         system_message=(
             "你是一个 Python 程序员。"
-            "根据用户需求或 verifier 的意见写代码/修正代码，用 ```python 代码块包裹。"
-            "写完后，把任务交给 executor 执行。"
+            "写代码后，必须调用 execute_python_code 工具来执行它。"
+            "如果执行结果不正确，修正代码后再次调用工具。"
+            "确认结果正确后，把任务交给 verifier 验证。"
         ),
-        handoffs=["executor"],
-    )
-
-    # 4. executor：执行代码，执行完交给 verifier
-    executor_agent = CodeExecutorAgent(
-        name="executor",
-        code_executor=executor,
+        tools=[execute_tool],
         handoffs=["verifier"],
     )
 
-    # 5. verifier：验证执行结果，通过说 TERMINATE，不通过交回 writer
+    # 5. verifier：验证最终结果
     verifier = AssistantAgent(
         name="verifier",
         model_client=model_client,
         system_message=(
-            "你是一个验证员。检查 executor 的执行结果是否正确。"
+            "你是一个验证员。检查 writer 的代码和执行结果是否正确。"
             "如果正确，回复 '验证通过' 并加上 TERMINATE。"
             "如果不正确，指出具体问题，并把任务交回给 writer。"
-            "不要自己写代码。"
         ),
         handoffs=["writer"],
     )
 
-    # 6. Swarm：Agent 自己决定移交给谁
+    # 6. Swarm
     team = Swarm(
-        participants=[writer, executor_agent, verifier],
-        termination_condition=(
-                TextMentionTermination("TERMINATE") | MaxMessageTermination(15)
-        ),
+        participants=[writer, verifier],
+        termination_condition=TextMentionTermination("TERMINATE") | MaxMessageTermination(20),
     )
 
     # 7. 跑任务
