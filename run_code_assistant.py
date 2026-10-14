@@ -1,3 +1,13 @@
+
+"""
+A1: 多 Agent 代码助手
+
+writer 写代码 → tester 测试 → verifier 审查
+编排方式：Swarm
+
+详见 README.md
+"""
+
 import asyncio
 import os
 from autogen_agentchat.agents import AssistantAgent, CodeExecutorAgent
@@ -99,7 +109,9 @@ async def main():
         participants=[writer, tester,verifier],
         termination_condition=TextMentionTermination("TERMINATE") | MaxMessageTermination(20),
     )
-
+    # ============================================================
+    # 示例任务：可替换成任意编程题
+    # ============================================================
     # 7. 跑任务
     task = """写一个 Python 函数 is_match(s, p)，实现正则表达式匹配，支持 '.' 和 '*'。
 
