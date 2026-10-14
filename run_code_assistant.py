@@ -56,8 +56,9 @@ async def main():
         model_client=model_client,
         system_message=(
             "你是一个 Python 程序员。"
-            "写代码后，必须调用 execute_python_code 工具来执行它。"
-            "确认基本正确后，把任务交给 tester 测试。"
+            "写代码后，用 execute_python_code 工具执行它。"
+            "执行成功后，在回复里用 ```python 代码块贴出完整代码，"
+            "然后把任务交给 tester。"
         ),
         tools=[execute_tool],
         handoffs=["tester"],
@@ -68,10 +69,10 @@ async def main():
         model_client=model_client,
         system_message=(
             "你是一个测试工程师。"
-            "针对 writer 写的代码，设计 3-5 个测试用例（包括边界情况）。"
+            "针对 writer 的代码，设计 5-10 个测试用例（含边界）。"
             "用 execute_python_code 工具执行测试。"
-            "如果测试通过，交给 verifier。"
-            "如果测试失败，交回 writer 修正。"
+            "测试完成后，在回复里用 ```python 代码块贴出完整代码和测试结果，"
+            "然后把任务交给 verifier。"
         ),
         tools=[execute_tool],  # tester 也能调执行工具
         handoffs=["writer", "verifier"],  # 可以交回 writer，也可以交给 verifier
@@ -82,7 +83,11 @@ async def main():
         name="verifier",
         model_client=model_client,
         system_message=(
-            "你是一个验证员。检查 writer 的代码和执行结果是否正确。"
+            "你是一个验证员。你会收到 writer 和 tester 的完整代码与测试结果。"
+            "请直接检查代码本身："
+            "1. 代码逻辑是否正确（逐行审查）"
+            "2. 测试覆盖是否充分（是否漏测关键边界）"
+            "3. 有没有潜在 bug（比如边界、类型、异常）"
             "如果正确，回复 '验证通过' 并加上 TERMINATE。"
             "如果不正确，指出具体问题，并把任务交回给 writer。"
         ),

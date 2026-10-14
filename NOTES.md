@@ -540,6 +540,27 @@ result = await team.run(task="...")
     - Medium：✅ 一次通过
     - Hard：✅ 一次通过
     - **A1 能处理 LeetCode 全难度**
+
+85. **A 方案成功：verifier 能读代码了**：
+    - verifier 逐行审查了代码
+    - 它发现了"首字符是 * 时索引回绕"的潜在问题
+    - 虽然判断"不在需求范围"，但它证明"能读代码"
+
+86. **但引入了新问题：死循环**：
+    - verifier 说"验证通过"但没有 TERMINATE
+    - 它把任务交回 writer
+    - writer 反复输出"任务完成"总结
+    - 系统跑了 47 条才被 MaxMessage 停掉
+
+87. **根因：verifier 的终止动作不明确**：
+    - system_message 说"通过就 TERMINATE"
+    - 但它执行的是 transfer_to_writer
+    - 可能是 handoffs 和 system_message 冲突
+
+88. **A1 的终止机制依然脆弱**：
+    - 硬题跑通不代表系统稳定
+    - 一个"通过但不终止"就能让系统死循环
+    - 说明 handoffs + 终止条件的设计需要更严谨
 ---
 
 ## 八、下一步计划
