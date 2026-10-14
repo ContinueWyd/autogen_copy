@@ -34,25 +34,35 @@ async def main():
         name="writer",
         model_client=model_client,
         system_message=(
-            "你是一个 Python 程序员。"
-            "根据用户需求写出代码，用 ```python 代码块包裹。"
-            "写完后不要解释太多，让 executor 去执行。"
+            "你是一个 Python 程序员。根据用户需求写出代码，用 ```python 代码块包裹。"
+            "写完后不要自己判断是否完成，交给 verifier 判断。"
+        ),
+    )
+    # 4. verifier：新增的验证 Agent，负责判断执行结果是否正确
+    verifier = AssistantAgent(
+        name="verifier",
+        model_client=model_client,
+        system_message=(
+            "你是一个验证员。你的任务是检查 executor 的执行结果是否正确。"
+            "如果输出正确，回复 '验证通过' 并加上 TERMINATE。"
+            "如果输出不对，指出具体问题，让 writer 修正。"
+            "不要自己写代码。"
         ),
     )
 
-    # 4. executor：执行代码
+    # 5. executor：执行代码
     executor_agent = CodeExecutorAgent(
         name="executor",
         code_executor=executor,
     )
 
-    # 5. 组成 Team：writer 先写，executor 执行
+    # 6. 组成 Team：writer 先写，executor 执行
     team = RoundRobinGroupChat(
-        participants=[writer, executor_agent],
-        termination_condition=MaxMessageTermination(6)
+        participants=[writer, executor_agent, verifier],
+        termination_condition=TextMentionTermination("TERMINATE") | MaxMessageTermination(12),
     )
 
-    # 6. 跑任务
+    # 7. 跑任务
     task = """请执行以下代码，如果输出不对就修复它：
 
     ```python
@@ -64,7 +74,7 @@ async def main():
     """
     result = await team.run(task=task)
 
-    # 7. 打印消息流
+    # 8. 打印消息流
     for i, msg in enumerate(result.messages):
         print(f"--- 第 {i} 条 ---")
         print(f"类型: {type(msg).__name__}")

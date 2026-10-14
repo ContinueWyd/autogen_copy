@@ -371,6 +371,22 @@ result = await team.run(task="...")
 48. **任务文本的格式会污染生成的代码**：
     - task 里的代码块带缩进 → writer 原样复制 → IndentationError
     - 写 task 时，代码块不要有前导空格
+
+49. **RoundRobin 不适合"条件流程"**：
+    - 它是"死板轮流"，不关心当前状态
+    - 不能实现"出错才改，不出错就停"
+    - A1 场景（出错就改、循环直到成功）不适合 RoundRobin
+
+50. **RoundRobin 的循环控制是"固定轮数"**：
+    - 它按 participants 顺序走
+    - 不会因为"verifier 说不通过"就重新开始
+    - 除非有明确的终止条件，否则走完一轮就停
+
+51. **Swarm 更适合 A1**：
+    - Agent 自己决定"交给谁"
+    - verifier 不通过 → 交回 writer
+    - verifier 通过 → 说 TERMINATE
+    - 天然支持"循环直到成功"
 ---
 
 ## 八、下一步计划
