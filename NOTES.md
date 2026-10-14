@@ -353,6 +353,24 @@ result = await team.run(task="...")
     - 不能简单地把"TERMINATE"交给 writer
     - 需要"验证后再终止"的机制
     - 这属于 A1 第3步的内容
+
+45. **A1 跑出了完整的"自动修复循环"**：
+    - writer 识别逻辑 bug → 修正 → 执行报错 → 诊断 → 再修正 → 执行成功 → 确认
+    - 这一整套"出错就改"是 AutoGen 默认行为的一部分
+    - 不需要额外设计，只要 writer + executor 轮流发言就会发生
+
+46. **writer 有自我诊断能力**：
+    - 看到 IndentationError 后，它主动判断"是缩进问题"
+    - 不需要人类干预
+
+47. **"任务完成"的判定是模糊的**：
+    - writer 说"正确，无需再改"，但它没说 TERMINATE
+    - 任务靠 MaxMessageTermination 兜底
+    - 没有明确的"成功信号"
+
+48. **任务文本的格式会污染生成的代码**：
+    - task 里的代码块带缩进 → writer 原样复制 → IndentationError
+    - 写 task 时，代码块不要有前导空格
 ---
 
 ## 八、下一步计划
