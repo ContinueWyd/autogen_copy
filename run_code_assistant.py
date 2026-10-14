@@ -53,7 +53,7 @@ async def main():
     )
 
     # 6. 跑任务
-    task = "写一个 Python 函数，打印 1 到 10 的平方。"
+    task = "写一个 Python 函数，计算 1 到 n 的平方和。请用 n=-1 作为测试用例调用它。"
     result = await team.run(task=task)
 
     # 7. 打印消息流
