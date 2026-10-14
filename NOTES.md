@@ -467,6 +467,21 @@ result = await team.run(task="...")
     - writer（实现） + tester（测试） + verifier（审计）
     - 每个角色有独立职责、独立视角
     - Swarm 让它们按需移交
+71. **A1 能处理真实 LeetCode 问题**：
+    - 给"两数之和"的需求 + 测试用例
+    - writer 一次写对，用了哈希表 O(n) 解法
+    - tester 设计了边界测试
+    - verifier 独立核对后通过
+
+72. **verifier 的"疑点发现"是真正的审计行为**：
+    - 它发现 writer 输出 [2,4] 不在 tester 用例里
+    - 推演后判断"是额外测试，不影响结论"
+    - 不盲目信任，真的核对数据
+
+73. **A1 当前能力边界**：
+    - LeetCode Easy：✅ 没问题
+    - LeetCode Medium：待测试
+    - LeetCode Hard：可能翻车
 ---
 
 ## 八、下一步计划

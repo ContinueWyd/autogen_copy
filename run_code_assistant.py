@@ -96,14 +96,15 @@ async def main():
     )
 
     # 7. 跑任务
-    task = """请执行以下代码，如果输出不对就修复它：
+    task = """写一个 Python 函数 two_sum(nums, target)，找出列表 nums 中两个数，使它们的和等于 target，返回这两个数的下标。
 
-    ```python
-    def sum_of_squares(n):
-        return sum(i*i for i in range(1, n))
+    要求：
+    1. 假设每个输入只有一个答案。
+    2. 同一个元素不能重复使用。
 
-    print(sum_of_squares(3))
-    ```
+    测试用例：
+    - nums = [2, 7, 11, 15], target = 9 → 返回 [0, 1]
+    - nums = [3, 2, 4], target = 6 → 返回 [1, 2]
     """
     result = await team.run(task=task)
 
