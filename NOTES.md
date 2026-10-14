@@ -482,6 +482,21 @@ result = await team.run(task="...")
     - LeetCode Easy：✅ 没问题
     - LeetCode Medium：待测试
     - LeetCode Hard：可能翻车
+
+74. **打印改动让代码"可见"**：
+    - 用 json.loads 解析 FunctionCall.arguments
+    - 取出 code 字段后 print，多行显示
+    - 以后所有调试都受益
+
+75. **tester 的"性质测试"**：
+    - 不只用例比对，还验证数学性质
+    - 下标互异、不越界、和等于 target
+    - 这比"跑用例"更严格
+
+76. **verifier 的"成熟判断"**：
+    - 它发现"自己看不到源码"
+    - 但基于 tester 的完整测试，判断行为已充分验证
+    - 验证的本质是"行为正确"，不是"必须读源码"
 ---
 
 ## 八、下一步计划

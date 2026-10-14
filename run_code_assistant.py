@@ -113,7 +113,30 @@ async def main():
         print(f"--- 第 {i} 条 ---")
         print(f"类型: {type(msg).__name__}")
         print(f"来源: {msg.source}")
-        print(f"内容: {msg.content}\n")
+
+        # 处理不同消息类型
+        content = msg.content
+
+        # 如果是列表（比如 ToolCallRequestEvent 里的 FunctionCall 列表）
+        if isinstance(content, list):
+            for item in content:
+                # 如果有 code 参数，单独多行显示
+                if hasattr(item, "arguments") and isinstance(item.arguments, str):
+                    import json
+                    try:
+                        args = json.loads(item.arguments)
+                        if "code" in args:
+                            print(f"代码:\n{args['code']}")
+                        else:
+                            print(f"参数: {args}")
+                    except Exception:
+                        print(f"内容: {item}")
+                else:
+                    print(f"内容: {item}")
+        else:
+            print(f"内容: {content}")
+
+        print()
 
 
 if __name__ == "__main__":
